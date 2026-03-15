@@ -1,9 +1,11 @@
-import { getUser, autoAssureExamSession, getAdminData, logout } from '@/lib/actions';
+import { getUser, autoAssureExamSession, getAdminData, logout, getGlobalTargetPic, getGlobalTargetHtml } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import { ExamSession } from '@/lib/db';
-import { LogOut, Play, ShieldAlert, FileText, CheckCircle, Clock } from 'lucide-react';
+import { LogOut, Play, ShieldAlert, FileText, CheckCircle, Clock, Image as ImageIcon, Code } from 'lucide-react';
 import Link from 'next/link';
 import DeleteResultButton from '@/components/DeleteResultButton';
+import TargetPicUpload from '@/components/TargetPicUpload';
+import TargetHtmlEditor from '@/components/TargetHtmlEditor';
 
 export default async function DashboardPage() {
   const user = await getUser();
@@ -106,6 +108,8 @@ export default async function DashboardPage() {
 
 async function AdminDashboard() {
   const data = await getAdminData();
+  const globalTargetPic = await getGlobalTargetPic();
+  const globalTargetHtml = await getGlobalTargetHtml();
   
   return (
     <div className="min-h-screen text-[var(--text-primary)] pb-12">
@@ -127,6 +131,30 @@ async function AdminDashboard() {
               <LogOut className="w-4 h-4" /> Logout
             </button>
           </form>
+        </div>
+
+        {/* Global Settings Section */}
+        <div className="card glass-panel animate-fade-in mt-6 border-l-4 border-[var(--accent)]">
+            <h2 className="text-xl mb-6 flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-[var(--accent)]" /> 
+                Exam Strategy & Assets
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-6 bg-black/20 rounded-2xl border border-white/5 shadow-xl">
+                    <div className="flex items-center gap-2 mb-4">
+                        <ImageIcon className="w-5 h-5 text-[var(--accent)]" />
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-300">Target Design Asset</h3>
+                    </div>
+                    <TargetPicUpload isGlobal initialPic={globalTargetPic} />
+                    <p className="text-[10px] text-zinc-500 mt-4 leading-relaxed">
+                        Upload the reference UI design. This visual target will be pinned to the student's sidebar for replication.
+                    </p>
+                </div>
+                
+                <div className="flex flex-col">
+                    <TargetHtmlEditor initialHtml={globalTargetHtml} />
+                </div>
+            </div>
         </div>
         
         <div className="card glass-panel animate-fade-in mt-6">

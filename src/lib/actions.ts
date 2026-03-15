@@ -329,3 +329,55 @@ export async function deleteExamSession(id: number) {
     revalidatePath('/dashboard');
     return { success: 'Result deleted' };
 }
+
+export async function updateTargetPic(sessionId: number, targetPic: string) {
+    const user = await getUser();
+    if (!user || user.role !== 'admin') return { error: 'Unauthorized' };
+    
+    const db = getDb();
+    const stmt = db.prepare('UPDATE exam_sessions SET target_pic = ? WHERE id = ?');
+    stmt.run(targetPic, sessionId);
+    
+    revalidatePath('/dashboard');
+    return { success: 'Target picture updated' };
+}
+
+export async function getGlobalTargetPic() {
+    const db = getDb();
+    const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
+    const result = stmt.get('global_target_pic') as { value: string | null } | undefined;
+    return result?.value || null;
+}
+
+export async function updateGlobalTargetPic(targetPic: string) {
+    const user = await getUser();
+    if (!user || user.role !== 'admin') return { error: 'Unauthorized' };
+    
+    const db = getDb();
+    const stmt = db.prepare('UPDATE settings SET value = ? WHERE key = ?');
+    stmt.run(targetPic, 'global_target_pic');
+    
+    revalidatePath('/dashboard');
+    revalidatePath('/exam');
+    return { success: 'Global target picture updated' };
+}
+
+export async function getGlobalTargetHtml() {
+    const db = getDb();
+    const stmt = db.prepare('SELECT value FROM settings WHERE key = ?');
+    const result = stmt.get('global_target_html') as { value: string | null } | undefined;
+    return result?.value || null;
+}
+
+export async function updateGlobalTargetHtml(targetHtml: string) {
+    const user = await getUser();
+    if (!user || user.role !== 'admin') return { error: 'Unauthorized' };
+    
+    const db = getDb();
+    const stmt = db.prepare('UPDATE settings SET value = ? WHERE key = ?');
+    stmt.run(targetHtml, 'global_target_html');
+    
+    revalidatePath('/dashboard');
+    revalidatePath('/exam');
+    return { success: 'Global target HTML updated' };
+}

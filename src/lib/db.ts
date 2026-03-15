@@ -44,9 +44,34 @@ export const initDb = () => {
       warnings INTEGER DEFAULT 0,
       status TEXT DEFAULT 'not_started',
       code TEXT,
+      target_pic TEXT,
       FOREIGN KEY(user_id) REFERENCES users(id)
     )
   `);
+
+  // Migration: Add target_pic if it doesn't exist
+  try {
+      db.exec('ALTER TABLE exam_sessions ADD COLUMN target_pic TEXT');
+  } catch (e) {
+      // Column might already exist
+  }
+
+  // Create settings table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    )
+  `);
+
+  // Insert default target_pic if not exists
+  const checkSetting = db.prepare('SELECT * FROM settings WHERE key = ?');
+  if (!checkSetting.get('global_target_pic')) {
+      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('global_target_pic', null);
+  }
+  if (!checkSetting.get('global_target_html')) {
+    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run('global_target_html', null);
+  }
 
   // Insert test users if not exist
   const countStmt = db.prepare(`SELECT COUNT(*) as count FROM users`);
@@ -92,4 +117,5 @@ export interface ExamSession {
   warnings: number;
   status: 'not_started' | 'ongoing' | 'completed' | 'auto_submitted';
   code: string | null;
+  target_pic: string | null;
 }

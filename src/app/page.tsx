@@ -58,7 +58,6 @@ export default function LoginPage() {
           
           <div className="text-xs text-secondary mt-2 mb-2 bg-[var(--bg-input)] p-3 rounded-md border border-[var(--border)]">
               <strong>Demo Accounts:</strong><br />
-              Student: username <code>student</code>, password <code>student123</code><br/>
               Admin: username <code>admin</code>, password <code>admin123</code>
           </div>
 
