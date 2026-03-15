@@ -1,6 +1,5 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import fs from 'fs';
 import bcrypt from 'bcryptjs';
 
 // Get the path to the DB file
@@ -9,9 +8,16 @@ const dbPath = path.join(process.cwd(), 'exam.db');
 // Check if dev environment
 const isDev = process.env.NODE_ENV !== 'production';
 
-// Initialize the DB
-const db = new Database(dbPath, { verbose: isDev ? console.log : undefined });
-db.pragma('journal_mode = WAL');
+declare global {
+  var sqliteDb: Database.Database | undefined;
+}
+
+if (!global.sqliteDb) {
+  const dbInstance = new Database(dbPath, { verbose: isDev ? console.log : undefined });
+  dbInstance.pragma('journal_mode = WAL');
+  global.sqliteDb = dbInstance;
+}
+const db = global.sqliteDb;
 
 // Define schema
 export const initDb = () => {
